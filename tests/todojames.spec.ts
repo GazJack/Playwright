@@ -1,3 +1,6 @@
+// paleidinejam atidarius playwright aplinka testus su komanda terminale: npx playwright test --ui  
+// paleidinejam testus terminale:  npx playwright test
+
 import { test, expect } from '@playwright/test';
 
 test.describe('Todojames Tests', () => {
@@ -31,18 +34,60 @@ test('has title h1', async ({ page }) => {
     await page.keyboard.press('Enter');
     await expect(page.getByText('3 uzduotis').nth(1)).toBeVisible();
   
+    // cypress: cy.get ('.klase').contains('blabla'), o playwright:
+    page.locator('ul.todo-list li', {hasText: '1uzduotis'})
 });
+
+test('Create new to do', async ({ page }) => {
+    await page.fill('input.new-todo', '1 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    const todoItem = page.locator('ul.todo-list li', { hasText: '1 uzduotis' });
+    await expect(todoItem).toBeVisible();
+});
+
+
 
 test('Delete item', async ({ page }) => {
+    await page.fill('input.new-todo', '1 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    const todoItem = page.locator('ul.todo-list li:has-text("1 uzduotis")');
+    await todoItem.hover();
+    await todoItem.locator('button.destroy').click();
+    await expect(todoItem).toHaveCount(0);
+  });
 
+  test('update item', async ({ page }) => {
+    await page.fill('input.new-todo', '1 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+   
+    const todoItem = page.locator('ul.todo-list li', { hasText: '1 uzduotis' });
+    await todoItem.dblclick();
+
+    const editInput = page.locator('input.edit');
+    await editInput.fill('istrynem ir vel prirasem');
+    await editInput.press('Enter');
+
+    const editedItem = page.locator('ul.todo-list li', { hasText: 'istrynem ir vel prirasem' });
+    await expect(editedItem).toBeVisible();
 });
 
-test('Update item', async ({ page }) => {
-
-})
 
 test('Count items', async ({ page }) => {
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
+    await page.fill('input.new-todo', '8 uzduotis');
+    await page.press('input.new-todo', 'Enter');
 
+    const fullList = page.locator('ul.todo-list li');
+    await expect(fullList).toHaveCount(6);
 });
 
 });
